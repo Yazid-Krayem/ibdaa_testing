@@ -22,11 +22,19 @@ class _StartQuizPageState extends State<StartQuizPage> {
 
     if (items != null) {
       final decoding = json.decode(items);
-
       final getData = decoding['$deviceid'];
+
       if (getData == null) {
         setState(() {
-          oldData = [{}];
+          oldData = [];
+        });
+      } else if (getData == []) {
+        setState(() {
+          oldData = [];
+        });
+      } else if (getData == true) {
+        setState(() {
+          oldData = [];
         });
       } else {
         setState(() {
@@ -34,9 +42,10 @@ class _StartQuizPageState extends State<StartQuizPage> {
         });
       }
     } else {
-      return oldData;
+      setState(() {
+        oldData = [];
+      });
     }
-    return oldData;
   }
 
   _getDeviceId() {

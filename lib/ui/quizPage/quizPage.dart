@@ -6,6 +6,9 @@ import 'package:ibdaa_testing/models/api.dart';
 import 'package:ibdaa_testing/models/getAnswers.dart';
 import 'package:ibdaa_testing/models/getQuestions.dart';
 import 'package:http/http.dart' as http;
+import 'package:ibdaa_testing/ui/answersButtons/answersButtons.dart';
+import 'package:ibdaa_testing/ui/questionsList/questionsSwipeCards.dart';
+import 'package:ibdaa_testing/ui/submitPage/submitPage.dart';
 import 'package:js_shims/js_shims.dart';
 import 'package:localstorage/localstorage.dart';
 import 'package:swipe_stack/swipe_stack.dart';
@@ -68,7 +71,8 @@ class _QuizPageState extends State<QuizPage> with TickerProviderStateMixin {
     this._checkOldData();
     this._getQuestions();
     this._getAnswers();
-    this.fetchUsers();
+    this.fetchQuestions();
+    this.fetchAnswers();
     controller =
         AnimationController(duration: const Duration(seconds: 5), vsync: this);
     animation = Tween<Offset>(begin: Offset(0, 1), end: Offset(1, 0))
@@ -92,21 +96,24 @@ class _QuizPageState extends State<QuizPage> with TickerProviderStateMixin {
   final LocalStorage storage = new LocalStorage(v1);
   bool initialized = false;
 
-  List dataListWithCookieName = [];
+  List dataListWithCookieName;
 
   _checkOldData() {
     setState(() {
       dataListWithCookieName = oldData;
     });
     var findEmpty = dataListWithCookieName.contains('empty');
-    if (findEmpty) {
-      setState(() {
-        dataListWithCookieName = [];
-      });
-    } else {
-      setState(() {
-        dataListWithCookieName = oldData;
-      });
+
+    switch (findEmpty) {
+      case true:
+        setState(() {
+          dataListWithCookieName = null;
+        });
+        break;
+      case false:
+        setState(() {
+          dataListWithCookieName = oldData;
+        });
     }
   }
 
@@ -123,10 +130,6 @@ class _QuizPageState extends State<QuizPage> with TickerProviderStateMixin {
     });
   }
 
-  // _saveToStorage() {
-  //   storage.setItem("$deviceId", list1.toJSONEncodable());
-  // }
-
   _clearStorage() async {
     await storage.clear();
 
@@ -140,7 +143,7 @@ class _QuizPageState extends State<QuizPage> with TickerProviderStateMixin {
   ///
   int _currentIndex = 0;
 
-// Get questions From the server
+  // Get questions From the server
 
   var listQuestions = new List<GetQuestions>();
 
@@ -158,7 +161,7 @@ class _QuizPageState extends State<QuizPage> with TickerProviderStateMixin {
 
   List questionsListTest = [];
 
-  Future<List<dynamic>> fetchUsers() async {
+  Future<List<dynamic>> fetchQuestions() async {
     var result = await http.get('http://localhost:3000/questions/list');
 
     setState(() {
@@ -169,6 +172,17 @@ class _QuizPageState extends State<QuizPage> with TickerProviderStateMixin {
 
 //Get answers From the serve
   var listAnswers = new List<GetAnswers>();
+  List answersList = [];
+
+  Future<List<dynamic>> fetchAnswers() async {
+    var result = await http.get('http://localhost:3000/answers/list');
+
+    setState(() {
+      answersList = json.decode(result.body)['result'];
+    });
+    return json.decode(result.body)['result'];
+  }
+
   _getAnswers() async {
     new Future.delayed(const Duration(seconds: 3));
 
@@ -197,7 +211,6 @@ class _QuizPageState extends State<QuizPage> with TickerProviderStateMixin {
         _currentIndex = dataListWithCookieName.length;
       });
     }
-    print(_currentIndex);
     return _currentIndex;
   }
 
@@ -232,76 +245,86 @@ class _QuizPageState extends State<QuizPage> with TickerProviderStateMixin {
       });
     }
   }
+  //Answers function
+
+  answersCallBack(item) {
+    _addItem(
+      item.id,
+      item.answersText,
+      item.answerValue,
+    );
+    startProgress();
+    setState(() {
+      _currentIndex = (_currentIndex + 1);
+    });
+    if (_currentIndex == 4) {
+      Navigator.push<bool>(
+          context,
+          MaterialPageRoute(
+            builder: (BuildContext context) => SubmitPage(),
+          ));
+    }
+    setState(() {
+      _progress = (_progress + 0.333);
+      _currentIndex = _currentIndex++;
+    });
+    print(_currentIndex);
+  }
 
   @override
   Widget build(BuildContext context) {
+    _getItemsFromLocalStorage();
     return new Scaffold(
       appBar: AppBar(
         automaticallyImplyLeading: false,
         title: Text("Quiz"),
       ),
       body: Container(
-          padding: const EdgeInsets.only(top: 16.0),
+          height: MediaQuery.of(context).size.height,
+          width: MediaQuery.of(context).size.width,
+          decoration: BoxDecoration(
+              gradient: LinearGradient(
+                  colors: [Colors.deepPurpleAccent, Colors.tealAccent],
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  stops: [0.0, 1.0],
+                  tileMode: TileMode.clamp)),
           child: Stack(
             children: [
-              SwipeStack(
-                  key: _swipeKey,
-                  children: questionsListTest.map((index) {
-                    return SwiperItem(
-                        builder: (SwiperPosition position, double progress) {
-                      return Material(
-                          elevation: 4,
-                          borderRadius: BorderRadius.all(Radius.circular(6)),
-                          child: Container(
-                              decoration: BoxDecoration(
-                                color: Colors.white,
-                                borderRadius:
-                                    BorderRadius.all(Radius.circular(6)),
-                              ),
-                              child: Column(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: <Widget>[
-                                  Text(index['question_data'],
-                                      style: TextStyle(
-                                          color: Colors.black, fontSize: 20)),
-                                  Text("Progress $position",
-                                      style: TextStyle(
-                                          color: Colors.blue, fontSize: 12)),
-                                ],
-                              )));
-                    });
-                  }).toList(),
-                  animationDuration: Duration(seconds: 2),
-                  historyCount: 3,
-                  visibleCount: 3,
-                  stackFrom: StackFrom.Top,
-                  translationInterval: 6,
-                  scaleInterval: 0.03,
-                  onSwipe: (int index, SwiperPosition position) => {
-                        if (SwiperPosition.Right != null)
-                          {print('right')}
-                        else if (SwiperPosition.Left != null)
-                          {print('left')}
-                      },
-                  onEnd: () => debugPrint("onEnd"),
-                  onRewind: (int index, SwiperPosition position) =>
-                      SwiperPosition.None),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  RaisedButton(
-                    onPressed: () => {_swipeKey.currentState.swipeRight()},
-                    child: Text('swipe right'),
-                  ),
-                  RaisedButton(
-                    onPressed: () => {_swipeKey.currentState.swipeLeft()},
-                    child: Text('swipe left'),
-                  ),
-                  RaisedButton(
-                    onPressed: () => {_swipeKey.currentState.rewind()},
-                    child: Text('swipe rewind'),
-                  ),
-                ],
+              //questions widget
+              Align(
+                alignment: Alignment.center,
+                child: QuestionsSwipeCards(
+                  currentIndex: _currentIndex,
+                  questionsListTest: questionsListTest,
+                  swipeKey: _swipeKey,
+                ),
+              ),
+
+              //answers widget
+              for (var item in listAnswers)
+                AnswersButtons(
+                  swipeKey: _swipeKey,
+                  answersList: answersList,
+                  answersCallBack: answersCallBack,
+                  item: item,
+                ),
+
+              // return button
+              Align(
+                alignment: Alignment.topRight,
+                child: RaisedButton(
+                    onPressed: () => {
+                          _swipeKey.currentState.rewind(),
+                          returnButtonFunction(),
+                        },
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: <Widget>[
+                        Text("return", style: TextStyle(fontSize: 20)),
+                        Icon(Icons.navigate_before)
+                      ],
+                    )),
               )
             ],
           )),
