@@ -17,7 +17,6 @@ class AnswersButtons extends StatelessWidget {
       : super(key: key);
   @override
   Widget build(BuildContext context) {
-    print('from answersbutton $currentIndex');
     return Row(
       crossAxisAlignment: CrossAxisAlignment.end,
       mainAxisAlignment: MainAxisAlignment.spaceAround,

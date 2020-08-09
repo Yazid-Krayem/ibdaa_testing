@@ -7,7 +7,7 @@ import 'package:ibdaa_testing/models/getAnswers.dart';
 import 'package:ibdaa_testing/models/getQuestions.dart';
 import 'package:http/http.dart' as http;
 import 'package:ibdaa_testing/ui/answersButtons/answersButtons.dart';
-import 'package:ibdaa_testing/ui/questionsList/questionsSwipeCards.dart';
+import 'package:ibdaa_testing/ui/questionsList/questionsList.dart';
 import 'package:ibdaa_testing/ui/submitPage/submitPage.dart';
 import 'package:js_shims/js_shims.dart';
 import 'package:localstorage/localstorage.dart';
@@ -58,7 +58,7 @@ class _QuizPageState extends State<QuizPage> with TickerProviderStateMixin {
   }
 
 //animation fucntions
-  Animation<Offset> animation;
+  Animation<double> animation;
   AnimationController controller;
   double beginAnim = 0.0;
   double endAnim = 1.0;
@@ -90,6 +90,12 @@ class _QuizPageState extends State<QuizPage> with TickerProviderStateMixin {
     this.fetchAnswers();
     controller =
         AnimationController(duration: const Duration(seconds: 2), vsync: this);
+    animation = Tween(begin: beginAnim, end: endAnim).animate(controller)
+      ..addListener(() {
+        setState(() {
+          // Change here any Animation object value.
+        });
+      });
 
     super.initState();
   }
@@ -136,14 +142,6 @@ class _QuizPageState extends State<QuizPage> with TickerProviderStateMixin {
       dataListWithCookieName.add(item);
 
       storage.setItem("$cookieName", dataListWithCookieName);
-    });
-  }
-
-  _clearStorage() async {
-    await storage.clear();
-
-    setState(() {
-      list1.items = storage.getItem("$deviceId") ?? [];
     });
   }
 
@@ -316,14 +314,9 @@ class _QuizPageState extends State<QuizPage> with TickerProviderStateMixin {
         height: MediaQuery.of(context).size.height * 0.3,
         width: MediaQuery.of(context).size.width * 0.4,
         child: new AnimatedSwitcher(
-          duration: const Duration(seconds: 2),
-          transitionBuilder: (Widget child, Animation animation) {
-            return SlideTransition(
-              child: child,
-              position:
-                  Tween<Offset>(begin: const Offset(1.0, 0), end: Offset.zero)
-                      .animate(animation),
-            );
+          duration: const Duration(seconds: 1),
+          transitionBuilder: (Widget child, Animation<double> animation) {
+            return ScaleTransition(child: child, scale: animation);
           },
           child: Expanded(
               child: IndexedStack(
@@ -331,9 +324,10 @@ class _QuizPageState extends State<QuizPage> with TickerProviderStateMixin {
                   children: questionsListTest.map((question) {
                     if (questionsListTest.indexOf(question) <= 3) {
                       // print(question.question_data);
-                      return Card(
-                        child: Text(question['question_data']),
-                      );
+                      return QuestionsList(
+                          currentIndex: currentIndex,
+                          progress: _progress,
+                          question: question);
                     } else {
                       return CircularProgressIndicator();
                     }
@@ -380,30 +374,12 @@ class _QuizPageState extends State<QuizPage> with TickerProviderStateMixin {
                 //answers widget
 
                 for (var item in listAnswers)
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.end,
-                    mainAxisAlignment: MainAxisAlignment.spaceAround,
-                    children: [
-                      RaisedButton(
-                          onPressed: () async {
-                            // if (item.answerValue <= 0.33) {
-                            //   await swipeKey.currentState.swipeLeft();
-                            // } else {
-                            //   await swipeKey.currentState.swipeLeft();
-                            // }
-                            answersCallBack(item);
-                          },
-                          child: Text("${item.answersText}")),
-                      // _getLocalItems()
-                      // LinearProgressIndicator()
-                    ],
-                  ),
-                // AnswersButtons(
-                //     swipeKey: _swipeKey,
-                //     answersList: answersList,
-                //     answersCallBack: answersCallBack,
-                //     item: item,
-                //     currentIndex: currentIndex),
+                  AnswersButtons(
+                      swipeKey: _swipeKey,
+                      answersList: answersList,
+                      answersCallBack: answersCallBack,
+                      item: item,
+                      currentIndex: currentIndex),
 
                 // return button
                 RaisedButton(
