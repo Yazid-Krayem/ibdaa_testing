@@ -30,6 +30,7 @@ class AnswersButtons extends StatelessWidget {
             //   await swipeKey.currentState.swipeLeft();
             // } else {
             //   await swipeKey.currentState.swipeLeft();
+            //   print(swipeKey.currentState.swipeLeft());
             // }
             answersCallBack(item);
           },

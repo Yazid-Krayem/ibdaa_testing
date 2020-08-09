@@ -8,6 +8,7 @@ import 'package:ibdaa_testing/models/getQuestions.dart';
 import 'package:http/http.dart' as http;
 import 'package:ibdaa_testing/ui/answersButtons/answersButtons.dart';
 import 'package:ibdaa_testing/ui/questionsList/questionsList.dart';
+import 'package:ibdaa_testing/ui/questionsList/questionsSwipeCards.dart';
 import 'package:ibdaa_testing/ui/submitPage/submitPage.dart';
 import 'package:js_shims/js_shims.dart';
 import 'package:localstorage/localstorage.dart';
@@ -45,8 +46,9 @@ class _QuizPageState extends State<QuizPage> with TickerProviderStateMixin {
   @override
   void dispose() {
     controller.dispose();
-    _incrementCurrentIndex();
-    _decrementCurrentIndex();
+    returnButtonFunction().dispose();
+    _incrementCurrentIndex().dispose();
+    _decrementCurrentIndex().dispose();
     super.dispose();
   }
 
@@ -145,6 +147,7 @@ class _QuizPageState extends State<QuizPage> with TickerProviderStateMixin {
 
       storage.setItem("$cookieName", dataListWithCookieName);
     });
+    print('_additem $dataListWithCookieName');
   }
 
   //// Get the existing data
@@ -232,10 +235,9 @@ class _QuizPageState extends State<QuizPage> with TickerProviderStateMixin {
     final decoding = json.decode(items);
     var getData = decoding['$deviceId'];
 
-    print(getData.length + 1);
-
     setState(() {
       removeItemFromLocalStorageList = getData;
+      removeItemFromLocalStorageList = dataListWithCookieName;
     });
 
     int deleteCurrentIndex = currentIndex - 1;
@@ -277,11 +279,12 @@ class _QuizPageState extends State<QuizPage> with TickerProviderStateMixin {
   //Answers function
 
   answersCallBack(item) {
-    final Storage _localStorage = window.localStorage;
-    var items = _localStorage['ibdaa'];
-    final decoding = json.decode(items);
-    var getData = decoding['$deviceId'];
+    print(currentIndex);
     if (currentIndex != 0) {
+      final Storage _localStorage = window.localStorage;
+      var items = _localStorage['ibdaa'];
+      final decoding = json.decode(items);
+      var getData = decoding['$deviceId'];
       setState(() {
         currentIndex = getData.length;
       });
@@ -353,19 +356,20 @@ class _QuizPageState extends State<QuizPage> with TickerProviderStateMixin {
               children: <Widget>[
                 // questions widget
                 // Container(
-                //   height: MediaQuery.of(context).size.height * 0.5,
-                //   width: MediaQuery.of(context).size.width * 0.5,
+                //   // height: MediaQuery.of(context).size.height * 0.5,
+                //   // width: MediaQuery.of(context).size.width * 0.5,
                 //   alignment: Alignment.center,
                 //   child: QuestionsSwipeCards(
                 //     currentIndex: currentIndex,
                 //     questionsListTest: questionsListTest,
                 //     swipeKey: _swipeKey,
+                //     answersCallBack: answersCallBack,
                 //   ),
                 // ),
                 Center(
                   child: indexStacked(),
                 ),
-                //answers widget
+                // //answers widget
 
                 Row(
                   crossAxisAlignment: CrossAxisAlignment.end,
