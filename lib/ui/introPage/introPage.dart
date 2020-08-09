@@ -31,9 +31,7 @@ class _IntroScreenState extends State<IntroPage> {
 
       if (index == _titles.length - 1) {
         _timer.cancel();
-        Future.delayed(Duration(seconds: 4), () {
-          pushReplacementOverview();
-        });
+        pushReplacementOverview();
       }
     });
   }

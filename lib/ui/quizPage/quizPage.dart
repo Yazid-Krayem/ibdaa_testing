@@ -18,19 +18,22 @@ class QuizPage extends StatefulWidget {
   final cookieName;
   final List oldData;
 
-  QuizPage(this.deviceId, this.cookieName, this.oldData);
+  QuizPage(this.deviceId, this.cookieName, this.oldData) : super();
   @override
   _QuizPageState createState() => _QuizPageState(deviceId, cookieName, oldData);
+
+  static of(BuildContext context) {}
 }
 
 class _QuizPageState extends State<QuizPage> with TickerProviderStateMixin {
 // swipe cards key
   final GlobalKey<SwipeStackState> _swipeKey = GlobalKey<SwipeStackState>();
+  // GlobalKey currentIndex;
 
   final deviceId;
   final cookieName;
   final List oldData;
-  _QuizPageState(this.deviceId, this.cookieName, this.oldData);
+  _QuizPageState(this.deviceId, this.cookieName, this.oldData) : super();
 
 //LinearProgressIndicator methods
 
@@ -40,7 +43,18 @@ class _QuizPageState extends State<QuizPage> with TickerProviderStateMixin {
   @override
   void dispose() {
     controller.dispose();
+    _incrementCurrentIndex();
+    _decrementCurrentIndex();
     super.dispose();
+  }
+
+  @override
+  void didUpdateWidget(QuizPage oldWidget) {
+    _incrementCurrentIndex();
+    _decrementCurrentIndex();
+    super.didUpdateWidget(oldWidget);
+
+    print('didUpdateWidget');
   }
 
 //animation fucntions
@@ -61,27 +75,22 @@ class _QuizPageState extends State<QuizPage> with TickerProviderStateMixin {
   }
 
   reserveProgress() {
-    print(_currentIndex);
+    print(currentIndex);
 
     controller.reverse();
   }
 
   @override
   void initState() {
+    this._getItemsFromLocalStorage();
     this._checkOldData();
     this._getQuestions();
     this._getAnswers();
     this.fetchQuestions();
     this.fetchAnswers();
     controller =
-        AnimationController(duration: const Duration(seconds: 5), vsync: this);
-    animation = Tween<Offset>(begin: Offset(0, 1), end: Offset(1, 0))
-        .animate(controller)
-          ..addListener(() {
-            setState(() {
-              // Change here any Animation object value.
-            });
-          });
+        AnimationController(duration: const Duration(seconds: 2), vsync: this);
+
     super.initState();
   }
 
@@ -141,7 +150,7 @@ class _QuizPageState extends State<QuizPage> with TickerProviderStateMixin {
   //// Get the existing data
   ///
   ///
-  int _currentIndex = 0;
+  int currentIndex = 0;
 
   // Get questions From the server
 
@@ -204,14 +213,14 @@ class _QuizPageState extends State<QuizPage> with TickerProviderStateMixin {
     var findEmpty = dataListWithCookieName.contains('empty');
     if (findEmpty) {
       setState(() {
-        _currentIndex = 0;
+        currentIndex = 0;
       });
     } else {
       setState(() {
-        _currentIndex = dataListWithCookieName.length;
+        currentIndex = dataListWithCookieName.length;
       });
     }
-    return _currentIndex;
+    return currentIndex;
   }
 
   returnButtonFunction() async {
@@ -223,41 +232,67 @@ class _QuizPageState extends State<QuizPage> with TickerProviderStateMixin {
     final decoding = json.decode(items);
     var getData = decoding['$deviceId'];
 
+    print(getData.length + 1);
+
     setState(() {
       removeItemFromLocalStorageList = getData;
     });
 
-    int deleteCurrentIndex = _currentIndex - 1;
+    int deleteCurrentIndex = currentIndex - 1;
     await pop(removeItemFromLocalStorageList);
 
-    // setState(() {
-    //   removeItemFromLocalStorageList = test;
-    // });
     await storage.deleteItem('ibdaa');
     storage.setItem("$cookieName", removeItemFromLocalStorageList);
 
     print(
         "deleted array $removeItemFromLocalStorageList +++ currentIndex $deleteCurrentIndex  ");
 
-    if (_currentIndex != 0) {
+    _decrementCurrentIndex();
+
+    if (getData == []) {
+      return false;
+    }
+    print('from the return button function $currentIndex');
+  }
+
+  // seState functions
+  _incrementCurrentIndex() {
+    setState(() {
+      if (currentIndex < 3) {
+        currentIndex++;
+      }
+    });
+  }
+
+  _decrementCurrentIndex() {
+    if (currentIndex != 0) {
       setState(() {
-        _currentIndex = _currentIndex - 1;
+        currentIndex--;
       });
     }
   }
+
+  /////////
   //Answers function
 
   answersCallBack(item) {
+    final Storage _localStorage = window.localStorage;
+    var items = _localStorage['ibdaa'];
+    final decoding = json.decode(items);
+    var getData = decoding['$deviceId'];
+    if (currentIndex != 0) {
+      setState(() {
+        currentIndex = getData.length;
+      });
+    }
     _addItem(
       item.id,
       item.answersText,
       item.answerValue,
     );
     startProgress();
-    setState(() {
-      _currentIndex = (_currentIndex + 1);
-    });
-    if (_currentIndex == 4) {
+    _incrementCurrentIndex();
+    if (currentIndex == 3) {
       Navigator.push<bool>(
           context,
           MaterialPageRoute(
@@ -266,68 +301,126 @@ class _QuizPageState extends State<QuizPage> with TickerProviderStateMixin {
     }
     setState(() {
       _progress = (_progress + 0.333);
-      _currentIndex = _currentIndex++;
     });
-    print(_currentIndex);
+    print('from _addItem function $currentIndex');
+  }
+
+  /// new design for stack
+  /// //
+  ///
+  ///
+  ///
+  Widget indexStacked() {
+    return Expanded(
+      child: Container(
+        height: MediaQuery.of(context).size.height * 0.3,
+        width: MediaQuery.of(context).size.width * 0.4,
+        child: new AnimatedSwitcher(
+          duration: const Duration(seconds: 2),
+          transitionBuilder: (Widget child, Animation animation) {
+            return SlideTransition(
+              child: child,
+              position:
+                  Tween<Offset>(begin: const Offset(1.0, 0), end: Offset.zero)
+                      .animate(animation),
+            );
+          },
+          child: Expanded(
+              child: IndexedStack(
+                  index: currentIndex,
+                  children: questionsListTest.map((question) {
+                    if (questionsListTest.indexOf(question) <= 3) {
+                      // print(question.question_data);
+                      return Card(
+                        child: Text(question['question_data']),
+                      );
+                    } else {
+                      return CircularProgressIndicator();
+                    }
+                  }).toList())),
+        ),
+      ),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
-    _getItemsFromLocalStorage();
+    print("here from the scaffold widget $currentIndex");
     return new Scaffold(
       appBar: AppBar(
         automaticallyImplyLeading: false,
         title: Text("Quiz"),
       ),
-      body: Container(
-          height: MediaQuery.of(context).size.height,
-          width: MediaQuery.of(context).size.width,
-          decoration: BoxDecoration(
-              gradient: LinearGradient(
-                  colors: [Colors.deepPurpleAccent, Colors.tealAccent],
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
-                  stops: [0.0, 1.0],
-                  tileMode: TileMode.clamp)),
-          child: Stack(
-            children: [
-              //questions widget
-              Align(
-                alignment: Alignment.center,
-                child: QuestionsSwipeCards(
-                  currentIndex: _currentIndex,
-                  questionsListTest: questionsListTest,
-                  swipeKey: _swipeKey,
-                ),
-              ),
+      body: Material(
+        child: Container(
+            key: UniqueKey(),
+            height: MediaQuery.of(context).size.height,
+            width: MediaQuery.of(context).size.width,
+            decoration: BoxDecoration(
+                gradient: LinearGradient(
+                    colors: [Colors.deepPurpleAccent, Colors.tealAccent],
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                    stops: [0.0, 1.0],
+                    tileMode: TileMode.clamp)),
+            child: Column(
+              children: <Widget>[
+                // questions widget
+                // Container(
+                //   height: MediaQuery.of(context).size.height * 0.5,
+                //   width: MediaQuery.of(context).size.width * 0.5,
+                //   alignment: Alignment.center,
+                //   child: QuestionsSwipeCards(
+                //     currentIndex: currentIndex,
+                //     questionsListTest: questionsListTest,
+                //     swipeKey: _swipeKey,
+                //   ),
+                // ),
+                indexStacked(),
+                //answers widget
 
-              //answers widget
-              for (var item in listAnswers)
-                AnswersButtons(
-                  swipeKey: _swipeKey,
-                  answersList: answersList,
-                  answersCallBack: answersCallBack,
-                  item: item,
-                ),
+                for (var item in listAnswers)
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                    children: [
+                      RaisedButton(
+                          onPressed: () async {
+                            // if (item.answerValue <= 0.33) {
+                            //   await swipeKey.currentState.swipeLeft();
+                            // } else {
+                            //   await swipeKey.currentState.swipeLeft();
+                            // }
+                            answersCallBack(item);
+                          },
+                          child: Text("${item.answersText}")),
+                      // _getLocalItems()
+                      // LinearProgressIndicator()
+                    ],
+                  ),
+                // AnswersButtons(
+                //     swipeKey: _swipeKey,
+                //     answersList: answersList,
+                //     answersCallBack: answersCallBack,
+                //     item: item,
+                //     currentIndex: currentIndex),
 
-              // return button
-              Align(
-                alignment: Alignment.topRight,
-                child: RaisedButton(
-                    onPressed: () => {
-                          _swipeKey.currentState.rewind(),
-                          returnButtonFunction(),
-                        },
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: <Widget>[
-                        Text("return", style: TextStyle(fontSize: 20)),
-                        Icon(Icons.navigate_before)
-                      ],
-                    )),
-              )
-            ],
-          )),
+                // return button
+                RaisedButton(
+                  onPressed: () => {
+                    if (currentIndex == 0)
+                      {print('object')}
+                    else
+                      {
+                        // _swipeKey.currentState.rewind(),
+                        returnButtonFunction(),
+                      }
+                  },
+                  child: Text("return", style: TextStyle(fontSize: 20)),
+                )
+              ],
+            )),
+      ),
     );
   }
 }

@@ -23,18 +23,18 @@ class _QuestionsSwipeCardsState extends State<QuestionsSwipeCards> {
 
   _QuestionsSwipeCardsState(this.currentIndex);
   changeIndex(index) {
-    print(currentIndex);
     setState(() {
       index['id'] = currentIndex;
     });
+
+    return index;
   }
 
   @override
   Widget build(BuildContext context) {
     return SwipeStack(
         key: widget.swipeKey,
-        children: widget.questionsListTest.map((index) {
-          changeIndex(index);
+        children: widget.questionsListTest.reversed.map((index) {
           return SwiperItem(
               builder: (SwiperPosition position, double progress) {
             return Material(
@@ -58,7 +58,7 @@ class _QuestionsSwipeCardsState extends State<QuestionsSwipeCards> {
           });
         }).toList(),
         animationDuration: Duration(seconds: 2),
-        historyCount: 3,
+        historyCount: 1,
         visibleCount: 3,
         stackFrom: StackFrom.Top,
         translationInterval: 6,

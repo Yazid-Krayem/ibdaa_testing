@@ -1,7 +1,11 @@
+import 'package:bloc/bloc.dart';
 import 'package:flutter/material.dart';
+import 'package:ibdaa_testing/counter_observer.dart';
 import 'package:ibdaa_testing/ui/introPage/introPage.dart';
 
 void main() {
+  Bloc.observer = CounterObserver();
+
   runApp(const MyApp());
 }
 
