@@ -17,23 +17,23 @@ class AnswersButtons extends StatelessWidget {
       : super(key: key);
   @override
   Widget build(BuildContext context) {
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.end,
-      mainAxisAlignment: MainAxisAlignment.spaceAround,
-      children: [
-        RaisedButton(
-            onPressed: () async {
-              // if (item.answerValue <= 0.33) {
-              //   await swipeKey.currentState.swipeLeft();
-              // } else {
-              //   await swipeKey.currentState.swipeLeft();
-              // }
-              answersCallBack(item);
-            },
-            child: Text("${item.answersText}")),
-        // _getLocalItems()
-        // LinearProgressIndicator()
-      ],
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: RaisedButton(
+          shape: new RoundedRectangleBorder(
+            borderRadius: new BorderRadius.circular(30.0),
+          ),
+          textColor: Colors.black,
+          color: Colors.blue,
+          onPressed: () async {
+            // if (item.answerValue <= 0.33) {
+            //   await swipeKey.currentState.swipeLeft();
+            // } else {
+            //   await swipeKey.currentState.swipeLeft();
+            // }
+            answersCallBack(item);
+          },
+          child: Text("${item.answersText}")),
     );
   }
 }

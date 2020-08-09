@@ -17,7 +17,7 @@ class QuestionsList extends StatelessWidget {
     return ClipRRect(
       borderRadius: BorderRadius.circular(15),
       child: Container(
-          width: MediaQuery.of(context).size.width * 0.5,
+          width: MediaQuery.of(context).size.width * 0.7,
           height: MediaQuery.of(context).size.height * 0.3,
           decoration: BoxDecoration(
             color: Colors.lightBlueAccent,
@@ -25,29 +25,29 @@ class QuestionsList extends StatelessWidget {
               colors: [Colors.white, Colors.blue],
             ),
           ),
-          child: Center(
-              child: Column(
+          child: Stack(
             children: [
               Container(
+                  alignment: Alignment.topCenter,
                   padding: const EdgeInsets.only(top: 8.0),
                   child: Linearprogress(
                     progress: progress,
                   )),
               Container(
-                alignment: Alignment.centerRight,
+                alignment: Alignment.topRight,
                 padding: const EdgeInsets.all(20.0),
                 child: Text("السؤال ${currentIndex + 1} من 3",
                     style: TextStyle(color: Colors.purple),
                     textDirection: TextDirection.rtl),
               ),
-              Container(
-                  padding: const EdgeInsets.all(8.0),
+              Center(
+                  // padding: const EdgeInsets.all(8.0),
                   child: Text(
-                    "${question['question_data']}",
-                    style: TextStyle(fontSize: 25, color: Colors.black),
-                  ))
+                "${question['question_data']}",
+                style: TextStyle(fontSize: 25, color: Colors.black),
+              ))
             ],
-          ))),
+          )),
     );
   }
 }

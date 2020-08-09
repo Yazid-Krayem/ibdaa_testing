@@ -28,6 +28,8 @@ class QuizPage extends StatefulWidget {
 class _QuizPageState extends State<QuizPage> with TickerProviderStateMixin {
 // swipe cards key
   final GlobalKey<SwipeStackState> _swipeKey = GlobalKey<SwipeStackState>();
+  final GlobalKey<ScaffoldState> _key = GlobalKey<ScaffoldState>();
+
   // GlobalKey currentIndex;
 
   final deviceId;
@@ -266,6 +268,7 @@ class _QuizPageState extends State<QuizPage> with TickerProviderStateMixin {
     if (currentIndex != 0) {
       setState(() {
         currentIndex--;
+        _progress = _progress - 0.33;
       });
     }
   }
@@ -310,44 +313,33 @@ class _QuizPageState extends State<QuizPage> with TickerProviderStateMixin {
   ///
   Widget indexStacked() {
     return Expanded(
-      child: Container(
-        height: MediaQuery.of(context).size.height * 0.3,
-        width: MediaQuery.of(context).size.width * 0.4,
-        child: new AnimatedSwitcher(
-          duration: const Duration(seconds: 1),
-          transitionBuilder: (Widget child, Animation<double> animation) {
-            return ScaleTransition(child: child, scale: animation);
-          },
-          child: Expanded(
-              child: IndexedStack(
-                  index: currentIndex,
-                  children: questionsListTest.map((question) {
-                    if (questionsListTest.indexOf(question) <= 3) {
-                      // print(question.question_data);
-                      return QuestionsList(
-                          currentIndex: currentIndex,
-                          progress: _progress,
-                          question: question);
-                    } else {
-                      return CircularProgressIndicator();
-                    }
-                  }).toList())),
-        ),
-      ),
+      child: IndexedStack(
+          sizing: StackFit.loose,
+          index: currentIndex,
+          children: questionsListTest.map((question) {
+            if (questionsListTest.indexOf(question) <= 3) {
+              // print(question.question_data);
+              return QuestionsList(
+                  currentIndex: currentIndex,
+                  progress: _progress,
+                  question: question);
+            } else {
+              return CircularProgressIndicator();
+            }
+          }).toList()),
     );
   }
 
   @override
   Widget build(BuildContext context) {
-    print("here from the scaffold widget $currentIndex");
     return new Scaffold(
       appBar: AppBar(
         automaticallyImplyLeading: false,
         title: Text("Quiz"),
       ),
       body: Material(
+        key: _key,
         child: Container(
-            key: UniqueKey(),
             height: MediaQuery.of(context).size.height,
             width: MediaQuery.of(context).size.width,
             decoration: BoxDecoration(
@@ -357,7 +349,7 @@ class _QuizPageState extends State<QuizPage> with TickerProviderStateMixin {
                     end: Alignment.bottomCenter,
                     stops: [0.0, 1.0],
                     tileMode: TileMode.clamp)),
-            child: Column(
+            child: Stack(
               children: <Widget>[
                 // questions widget
                 // Container(
@@ -370,29 +362,50 @@ class _QuizPageState extends State<QuizPage> with TickerProviderStateMixin {
                 //     swipeKey: _swipeKey,
                 //   ),
                 // ),
-                indexStacked(),
+                Center(
+                  child: indexStacked(),
+                ),
                 //answers widget
 
-                for (var item in listAnswers)
-                  AnswersButtons(
-                      swipeKey: _swipeKey,
-                      answersList: answersList,
-                      answersCallBack: answersCallBack,
-                      item: item,
-                      currentIndex: currentIndex),
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    for (var item in listAnswers)
+                      Container(
+                        padding: const EdgeInsets.only(bottom: 50.0),
+                        alignment: Alignment.bottomCenter,
+                        child: AnswersButtons(
+                            swipeKey: _swipeKey,
+                            answersList: answersList,
+                            answersCallBack: answersCallBack,
+                            item: item,
+                            currentIndex: currentIndex),
+                      ),
+                  ],
+                ),
 
                 // return button
-                RaisedButton(
-                  onPressed: () => {
-                    if (currentIndex == 0)
-                      {print('object')}
-                    else
-                      {
-                        // _swipeKey.currentState.rewind(),
-                        returnButtonFunction(),
-                      }
-                  },
-                  child: Text("return", style: TextStyle(fontSize: 20)),
+                Container(
+                  alignment: Alignment.topRight,
+                  padding: const EdgeInsets.all(20.0),
+                  child: RaisedButton(
+                    shape: new RoundedRectangleBorder(
+                      borderRadius: new BorderRadius.circular(30.0),
+                    ),
+                    textColor: Colors.black,
+                    color: Colors.blue,
+                    onPressed: () => {
+                      if (currentIndex == 0)
+                        {print('object')}
+                      else
+                        {
+                          // _swipeKey.currentState.rewind(),
+                          returnButtonFunction(),
+                        }
+                    },
+                    child: Text("return", style: TextStyle(fontSize: 20)),
+                  ),
                 )
               ],
             )),
