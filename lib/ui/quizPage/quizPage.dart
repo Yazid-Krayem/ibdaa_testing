@@ -89,9 +89,9 @@ class _QuizPageState extends State<QuizPage> with TickerProviderStateMixin {
     this._getItemsFromLocalStorage();
     this._checkOldData();
     this._getQuestions();
-    // this._getAnswers();
-    // this.fetchQuestions();
-    // this.fetchAnswers();
+    this._getAnswers();
+    this.fetchQuestions();
+    this.fetchAnswers();
     controller =
         AnimationController(duration: const Duration(seconds: 2), vsync: this);
     animation = Tween(begin: beginAnim, end: endAnim).animate(controller)
