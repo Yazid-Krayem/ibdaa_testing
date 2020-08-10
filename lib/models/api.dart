@@ -14,15 +14,15 @@ class API {
     return http.get(url);
   }
 
-  // static Future insertUserAnswers(
-  //     user_question_question, user_question_answer, user_question_user) {
-  //   var url = baseUrl + "/answers/list";
-  //   return http.post(url, body: {
-  //     'user_question_question': user_question_question,
-  //     'user_question_answer': user_question_answer,
-  //     'user_question_user': user_question_user
-  //   });
-  // }
+  static Future insertUserAnswers(
+      user_question_question, user_question_answer, user_question_user) {
+    var url = baseUrl + "/answers/list";
+    return http.post(url, body: {
+      'user_question_question': user_question_question,
+      'user_question_answer': user_question_answer,
+      'user_question_user': user_question_user
+    });
+  }
 
   static Future userAnswersFromLocalStorage(data) {
     var url = baseUrl + "/users/add";
