@@ -7,6 +7,7 @@ import 'package:ibdaa_testing/models/getAnswers.dart';
 import 'package:ibdaa_testing/models/getQuestions.dart';
 import 'package:http/http.dart' as http;
 import 'package:ibdaa_testing/ui/answersButtons/answersButtons.dart';
+import 'package:ibdaa_testing/ui/linearProgressIndicator/linearProgressIndicator.dart';
 import 'package:ibdaa_testing/ui/questionsList/questionsList.dart';
 import 'package:ibdaa_testing/ui/submitPage/submitPage.dart';
 import 'package:js_shims/js_shims.dart';
@@ -49,13 +50,6 @@ class _QuizPageState extends State<QuizPage> with TickerProviderStateMixin {
     _incrementCurrentIndex().dispose();
     _decrementCurrentIndex().dispose();
     super.dispose();
-  }
-
-  @override
-  void didUpdateWidget(QuizPage oldWidget) {
-    _incrementCurrentIndex();
-    _decrementCurrentIndex();
-    super.didUpdateWidget(oldWidget);
   }
 
 //animation fucntions
@@ -168,8 +162,20 @@ class _QuizPageState extends State<QuizPage> with TickerProviderStateMixin {
 
   List questionsListTest = [];
 
+  final url = 'https://ibdaa.herokuapp.com';
+
   Future<List<dynamic>> fetchQuestions() async {
-    var result = await http.get('https://ibdaa.herokuapp.com/questions/list');
+    var result = await http.get(
+      '$url/questions/list',
+      headers: {
+        "Access-Control-Allow-Origin": "*", // Required for CORS support to work
+        "Access-Control-Allow-Credentials":
+            'true', // Required for cookies, authorization headers with HTTPS
+        "Access-Control-Allow-Headers":
+            "Origin,Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token",
+        "Access-Control-Allow-Methods": "POST, OPTIONS"
+      },
+    );
 
     setState(() {
       questionsListTest = json.decode(result.body)['result'];
@@ -182,7 +188,17 @@ class _QuizPageState extends State<QuizPage> with TickerProviderStateMixin {
   List answersList = [];
 
   Future<List<dynamic>> fetchAnswers() async {
-    var result = await http.get('https://ibdaa.herokuapp.com/answers/list');
+    var result = await http.get(
+      '$url/answers/list',
+      headers: {
+        "Access-Control-Allow-Origin": "*", // Required for CORS support to work
+        "Access-Control-Allow-Credentials":
+            'true', // Required for cookies, authorization headers with HTTPS
+        "Access-Control-Allow-Headers":
+            "Origin,Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token",
+        "Access-Control-Allow-Methods": "POST, OPTIONS"
+      },
+    );
 
     setState(() {
       answersList = json.decode(result.body)['result'];
@@ -308,33 +324,36 @@ class _QuizPageState extends State<QuizPage> with TickerProviderStateMixin {
   ///
   ///
   Widget indexStacked() {
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(15),
-      child: Container(
-        width: MediaQuery.of(context).size.width * 0.7,
-        height: MediaQuery.of(context).size.height * 0.3,
-        decoration: BoxDecoration(
-          color: Colors.lightBlueAccent,
-          gradient: LinearGradient(
-            colors: [Colors.white, Colors.blue],
+    return Stack(
+      children: [
+        ClipRRect(
+          borderRadius: BorderRadius.circular(15),
+          child: Container(
+            alignment: Alignment.center,
+            width: MediaQuery.of(context).size.width * 0.6,
+            height: MediaQuery.of(context).size.height * 0.3,
+            decoration: BoxDecoration(
+              color: Colors.lightBlueAccent,
+              gradient: LinearGradient(
+                colors: [Colors.white, Colors.blue],
+              ),
+            ),
+            child: IndexedStack(
+                index: currentIndex,
+                children: questionsListTest.map((question) {
+                  if (questionsListTest.indexOf(question) <= 3) {
+                    // print(question.question_data);
+                    return QuestionsList(
+                        currentIndex: currentIndex,
+                        progress: _progress,
+                        question: question);
+                  } else {
+                    return Container();
+                  }
+                }).toList()),
           ),
         ),
-        child: Expanded(
-          child: IndexedStack(
-              index: currentIndex,
-              children: questionsListTest.map((question) {
-                if (questionsListTest.indexOf(question) <= 3) {
-                  // print(question.question_data);
-                  return QuestionsList(
-                      currentIndex: currentIndex,
-                      progress: _progress,
-                      question: question);
-                } else {
-                  return CircularProgressIndicator();
-                }
-              }).toList()),
-        ),
-      ),
+      ],
     );
   }
 
@@ -383,7 +402,7 @@ class _QuizPageState extends State<QuizPage> with TickerProviderStateMixin {
                     children: [
                       for (var item in listAnswers)
                         Container(
-                          padding: const EdgeInsets.only(bottom: 50.0),
+                          padding: const EdgeInsets.only(bottom: 150.0),
                           alignment: Alignment.bottomCenter,
                           child: AnswersButtons(
                               swipeKey: _swipeKey,

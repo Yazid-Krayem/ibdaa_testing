@@ -16,12 +16,14 @@ class QuestionsList extends StatelessWidget {
   Widget build(BuildContext context) {
     return Stack(
       children: [
-        Container(
-            alignment: Alignment.topCenter,
-            padding: const EdgeInsets.only(top: 8.0),
+        Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+          Container(
+            width: MediaQuery.of(context).size.width * 0.5,
             child: Linearprogress(
               progress: progress,
-            )),
+            ),
+          ),
+        ]),
         Container(
           alignment: Alignment.topRight,
           padding: const EdgeInsets.all(20.0),
@@ -34,7 +36,7 @@ class QuestionsList extends StatelessWidget {
             child: Text(
           "${question['question_data']}",
           style: TextStyle(fontSize: 25, color: Colors.black),
-        ))
+        )),
       ],
     );
   }
