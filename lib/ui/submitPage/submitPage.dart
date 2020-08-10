@@ -4,6 +4,7 @@ import 'package:localstorage/localstorage.dart';
 // ignore: must_be_immutable
 class SubmitPage extends StatelessWidget {
   final LocalStorage storage = new LocalStorage('ibdaa');
+  final LocalStorage progressStorage = new LocalStorage('progress');
 
   @override
   Widget build(BuildContext context) {
@@ -22,6 +23,7 @@ class SubmitPage extends StatelessWidget {
               child: RaisedButton(
                 onPressed: () {
                   storage.clear();
+                  progressStorage.clear();
                 },
                 child: Text('Submit'),
               ),
