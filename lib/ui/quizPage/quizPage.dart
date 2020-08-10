@@ -57,8 +57,6 @@ class _QuizPageState extends State<QuizPage> with TickerProviderStateMixin {
     _incrementCurrentIndex();
     _decrementCurrentIndex();
     super.didUpdateWidget(oldWidget);
-
-    print('didUpdateWidget');
   }
 
 //animation fucntions
@@ -79,8 +77,6 @@ class _QuizPageState extends State<QuizPage> with TickerProviderStateMixin {
   }
 
   reserveProgress() {
-    print(currentIndex);
-
     controller.reverse();
   }
 
@@ -147,7 +143,7 @@ class _QuizPageState extends State<QuizPage> with TickerProviderStateMixin {
 
       storage.setItem("$cookieName", dataListWithCookieName);
     });
-    print('_additem $dataListWithCookieName');
+    // print('_additem $dataListWithCookieName');
   }
 
   //// Get the existing data
@@ -246,15 +242,14 @@ class _QuizPageState extends State<QuizPage> with TickerProviderStateMixin {
     await storage.deleteItem('ibdaa');
     storage.setItem("$cookieName", removeItemFromLocalStorageList);
 
-    print(
-        "deleted array $removeItemFromLocalStorageList +++ currentIndex $deleteCurrentIndex  ");
+    // print("deleted array $removeItemFromLocalStorageList +++ currentIndex $deleteCurrentIndex  ");
 
     _decrementCurrentIndex();
 
     if (getData == []) {
       return false;
     }
-    print('from the return button function $currentIndex');
+    // print('from the return button function $currentIndex');
   }
 
   // seState functions
@@ -279,7 +274,6 @@ class _QuizPageState extends State<QuizPage> with TickerProviderStateMixin {
   //Answers function
 
   answersCallBack(item) {
-    print(currentIndex);
     if (currentIndex != 0) {
       final Storage _localStorage = window.localStorage;
       var items = _localStorage['ibdaa'];
