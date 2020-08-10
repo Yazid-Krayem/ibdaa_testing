@@ -102,6 +102,7 @@ class _QuizPageState extends State<QuizPage> with TickerProviderStateMixin {
 
 // Save and Delete data from Local Storage
   final LocalStorage storage = new LocalStorage(v1);
+  final LocalStorage progressStorage = new LocalStorage('progress');
   bool initialized = false;
 
   List dataListWithCookieName;
@@ -221,6 +222,12 @@ class _QuizPageState extends State<QuizPage> with TickerProviderStateMixin {
   // This function for checking  and count the items inside the local storage and it  return the NEW currentIndex
 
   _getItemsFromLocalStorage() async {
+    final Storage _localStorage = window.localStorage;
+    var items = _localStorage['progress'];
+    final decoding = json.decode(items);
+
+    final progressLocalStorage = decoding['progress'];
+
     setState(() {
       dataListWithCookieName = oldData;
     });
@@ -228,10 +235,12 @@ class _QuizPageState extends State<QuizPage> with TickerProviderStateMixin {
     if (findEmpty) {
       setState(() {
         currentIndex = 0;
+        _progress = 0.33;
       });
     } else {
       setState(() {
         currentIndex = dataListWithCookieName.length;
+        _progress = progressLocalStorage;
       });
     }
     return currentIndex;
@@ -282,6 +291,7 @@ class _QuizPageState extends State<QuizPage> with TickerProviderStateMixin {
         currentIndex--;
         _progress = _progress - 0.33;
       });
+      progressStorage.setItem("progress", _progress);
     }
   }
 
@@ -315,7 +325,8 @@ class _QuizPageState extends State<QuizPage> with TickerProviderStateMixin {
     setState(() {
       _progress = (_progress + 0.333);
     });
-    print('from _addItem function $currentIndex');
+
+    progressStorage.setItem("progress", _progress);
   }
 
   /// new design for stack
