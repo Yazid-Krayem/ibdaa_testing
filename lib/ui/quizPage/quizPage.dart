@@ -308,19 +308,34 @@ class _QuizPageState extends State<QuizPage> with TickerProviderStateMixin {
   ///
   ///
   Widget indexStacked() {
-    return IndexedStack(
-        index: currentIndex,
-        children: questionsListTest.map((question) {
-          if (questionsListTest.indexOf(question) <= 3) {
-            // print(question.question_data);
-            return QuestionsList(
-                currentIndex: currentIndex,
-                progress: _progress,
-                question: question);
-          } else {
-            return CircularProgressIndicator();
-          }
-        }).toList());
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(15),
+      child: Container(
+        width: MediaQuery.of(context).size.width * 0.7,
+        height: MediaQuery.of(context).size.height * 0.3,
+        decoration: BoxDecoration(
+          color: Colors.lightBlueAccent,
+          gradient: LinearGradient(
+            colors: [Colors.white, Colors.blue],
+          ),
+        ),
+        child: Expanded(
+          child: IndexedStack(
+              index: currentIndex,
+              children: questionsListTest.map((question) {
+                if (questionsListTest.indexOf(question) <= 3) {
+                  // print(question.question_data);
+                  return QuestionsList(
+                      currentIndex: currentIndex,
+                      progress: _progress,
+                      question: question);
+                } else {
+                  return CircularProgressIndicator();
+                }
+              }).toList()),
+        ),
+      ),
+    );
   }
 
   @override
