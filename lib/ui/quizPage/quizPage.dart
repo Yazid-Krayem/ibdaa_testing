@@ -8,7 +8,6 @@ import 'package:ibdaa_testing/models/getQuestions.dart';
 import 'package:http/http.dart' as http;
 import 'package:ibdaa_testing/ui/answersButtons/answersButtons.dart';
 import 'package:ibdaa_testing/ui/questionsList/questionsList.dart';
-import 'package:ibdaa_testing/ui/questionsList/questionsSwipeCards.dart';
 import 'package:ibdaa_testing/ui/submitPage/submitPage.dart';
 import 'package:js_shims/js_shims.dart';
 import 'package:localstorage/localstorage.dart';
@@ -236,7 +235,7 @@ class _QuizPageState extends State<QuizPage> with TickerProviderStateMixin {
       removeItemFromLocalStorageList = dataListWithCookieName;
     });
 
-    int deleteCurrentIndex = currentIndex - 1;
+    // int deleteCurrentIndex = currentIndex - 1;
     await pop(removeItemFromLocalStorageList);
 
     await storage.deleteItem('ibdaa');
