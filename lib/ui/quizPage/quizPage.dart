@@ -27,11 +27,6 @@ class QuizPage extends StatefulWidget {
 }
 
 class _QuizPageState extends State<QuizPage> with TickerProviderStateMixin {
-// swipe cards key
-  final GlobalKey<ScaffoldState> _key = GlobalKey<ScaffoldState>();
-
-  // GlobalKey currentIndex;
-
   final deviceId;
   final cookieName;
   final List oldData;
@@ -318,7 +313,8 @@ class _QuizPageState extends State<QuizPage> with TickerProviderStateMixin {
       Navigator.push<bool>(
           context,
           MaterialPageRoute(
-            builder: (BuildContext context) => SubmitPage(),
+            builder: (BuildContext context) => SubmitPage(
+                deviceId: deviceId, questionsListTest: questionsListTest),
           ));
     }
     setState(() {
@@ -375,58 +371,74 @@ class _QuizPageState extends State<QuizPage> with TickerProviderStateMixin {
         title: Text("Quiz"),
       ),
       body: SingleChildScrollView(
-        scrollDirection: Axis.vertical,
-        child: Container(
-            height: MediaQuery.of(context).size.height,
-            width: MediaQuery.of(context).size.width,
-            decoration: BoxDecoration(
-                gradient: LinearGradient(
-                    colors: [Colors.deepPurpleAccent, Colors.tealAccent],
-                    begin: Alignment.topCenter,
-                    end: Alignment.bottomCenter,
-                    stops: [0.0, 1.0],
-                    tileMode: TileMode.clamp)),
-            child: Stack(
-              alignment: Alignment.bottomCenter,
-              children: <Widget>[
-                Center(
-                  child: indexStacked(),
-                ),
-                // //answers widget
-
-                LayoutBuilder(
-                  builder: (context, constraints) {
-                    if (constraints.maxHeight < 768 &&
-                        constraints.maxWidth < 420) {
-                      print(constraints.maxWidth);
-                      return _answersButtonColumn();
-                    } else {
-                      return _answersButtonRow();
-                    }
-                  },
-                ),
-
-                // return button
-                Container(
-                  alignment: Alignment.topRight,
-                  padding: const EdgeInsets.all(20.0),
-                  child: RaisedButton(
-                    shape: buttonStyle,
-                    textColor: Colors.black,
-                    color: Colors.blue,
-                    onPressed: () => {
-                      if (currentIndex == 0)
-                        {print('object')}
-                      else
-                        {
-                          returnButtonFunction(),
-                        }
-                    },
-                    child: Text("return", style: TextStyle(fontSize: 20)),
+        child: Material(
+          child: Container(
+              height: MediaQuery.of(context).size.height,
+              width: MediaQuery.of(context).size.width,
+              decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                      colors: [Colors.deepPurpleAccent, Colors.tealAccent],
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomCenter,
+                      stops: [0.0, 1.0],
+                      tileMode: TileMode.clamp)),
+              child: Stack(
+                alignment: Alignment.bottomCenter,
+                children: <Widget>[
+                  Center(
+                    child: indexStacked(),
                   ),
-                )
-              ],
-            )),
+                  // //answers widget
+
+                  LayoutBuilder(
+                    builder: (context, constraints) {
+                      if (constraints.maxHeight < 768 &&
+                          constraints.maxWidth < 420) {
+                        return _answersButtonColumn();
+                      } else {
+                        return _answersButtonRow();
+                      }
+                    },
+                  ),
+                  // Row(
+                  //   crossAxisAlignment: CrossAxisAlignment.end,
+                  //   mainAxisAlignment: MainAxisAlignment.center,
+                  //   children: [
+                  //     for (var item in listAnswers)
+                  //       Container(
+                  //         padding: const EdgeInsets.only(bottom: 150.0),
+                  //         alignment: Alignment.bottomCenter,
+                  //         child: AnswersButtons(
+                  //             answersList: answersList,
+                  //             answersCallBack: answersCallBack,
+                  //             item: item,
+                  //             currentIndex: currentIndex),
+                  //       ),
+                  //   ],
+                  // ),
+
+                  // return button
+                  Container(
+                    alignment: Alignment.topRight,
+                    padding: const EdgeInsets.all(20.0),
+                    child: RaisedButton(
+                      shape: buttonStyle,
+                      textColor: Colors.black,
+                      color: Colors.blue,
+                      onPressed: () => {
+                        if (currentIndex == 0)
+                          {print('object')}
+                        else
+                          {
+                            returnButtonFunction(),
+                          }
+                      },
+                      child: Text("return", style: TextStyle(fontSize: 20)),
+                    ),
+                  )
+                ],
+              )),
+        ),
       ),
     );
   }
@@ -458,7 +470,7 @@ class _QuizPageState extends State<QuizPage> with TickerProviderStateMixin {
   _answersButtonColumn() {
     return Container(
       height: 300,
-      padding: const EdgeInsets.only(top: 50.0),
+      padding: const EdgeInsets.only(top: 60.0),
       alignment: Alignment.bottomCenter,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.center,
@@ -466,9 +478,6 @@ class _QuizPageState extends State<QuizPage> with TickerProviderStateMixin {
         children: [
           for (var item in listAnswers)
             Wrap(children: [
-              SizedBox(
-                height: 20,
-              ),
               AnswersButtons(
                   answersList: answersList,
                   answersCallBack: answersCallBack,
