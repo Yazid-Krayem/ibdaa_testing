@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 
+import '../style.dart';
+
 class AnswersButtons extends StatelessWidget {
-  final swipeKey;
   final List answersList;
   final Function answersCallBack;
   final item;
@@ -9,7 +10,6 @@ class AnswersButtons extends StatelessWidget {
 
   const AnswersButtons(
       {Key key,
-      @required this.swipeKey,
       @required this.answersList,
       @required this.answersCallBack,
       @required this.item,
@@ -20,18 +20,10 @@ class AnswersButtons extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.all(8.0),
       child: RaisedButton(
-          shape: new RoundedRectangleBorder(
-            borderRadius: new BorderRadius.circular(30.0),
-          ),
+          shape: buttonStyle,
           textColor: Colors.black,
           color: Colors.blue,
           onPressed: () async {
-            // if (item.answerValue <= 0.33) {
-            //   await swipeKey.currentState.swipeLeft();
-            // } else {
-            //   await swipeKey.currentState.swipeLeft();
-            //   print(swipeKey.currentState.swipeLeft());
-            // }
             answersCallBack(item);
           },
           child: Text("${item.answersText}")),

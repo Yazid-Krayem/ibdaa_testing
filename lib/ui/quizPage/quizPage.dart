@@ -7,12 +7,12 @@ import 'package:ibdaa_testing/models/getAnswers.dart';
 import 'package:ibdaa_testing/models/getQuestions.dart';
 import 'package:http/http.dart' as http;
 import 'package:ibdaa_testing/ui/answersButtons/answersButtons.dart';
-import 'package:ibdaa_testing/ui/linearProgressIndicator/linearProgressIndicator.dart';
 import 'package:ibdaa_testing/ui/questionsList/questionsList.dart';
 import 'package:ibdaa_testing/ui/submitPage/submitPage.dart';
 import 'package:js_shims/js_shims.dart';
 import 'package:localstorage/localstorage.dart';
-import 'package:swipe_stack/swipe_stack.dart';
+
+import '../style.dart';
 
 class QuizPage extends StatefulWidget {
   final deviceId;
@@ -28,7 +28,6 @@ class QuizPage extends StatefulWidget {
 
 class _QuizPageState extends State<QuizPage> with TickerProviderStateMixin {
 // swipe cards key
-  final GlobalKey<SwipeStackState> _swipeKey = GlobalKey<SwipeStackState>();
   final GlobalKey<ScaffoldState> _key = GlobalKey<ScaffoldState>();
 
   // GlobalKey currentIndex;
@@ -341,7 +340,7 @@ class _QuizPageState extends State<QuizPage> with TickerProviderStateMixin {
           borderRadius: BorderRadius.circular(15),
           child: Container(
             alignment: Alignment.center,
-            width: MediaQuery.of(context).size.width * 0.6,
+            width: MediaQuery.of(context).size.width * 0.7,
             height: MediaQuery.of(context).size.height * 0.3,
             decoration: BoxDecoration(
               color: Colors.lightBlueAccent,
@@ -376,80 +375,107 @@ class _QuizPageState extends State<QuizPage> with TickerProviderStateMixin {
         title: Text("Quiz"),
       ),
       body: SingleChildScrollView(
-        child: Material(
-          key: _key,
-          child: Container(
-              height: MediaQuery.of(context).size.height,
-              width: MediaQuery.of(context).size.width,
-              decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                      colors: [Colors.deepPurpleAccent, Colors.tealAccent],
-                      begin: Alignment.topCenter,
-                      end: Alignment.bottomCenter,
-                      stops: [0.0, 1.0],
-                      tileMode: TileMode.clamp)),
-              child: Stack(
-                children: <Widget>[
-                  // questions widget
-                  // Container(
-                  //   // height: MediaQuery.of(context).size.height * 0.5,
-                  //   // width: MediaQuery.of(context).size.width * 0.5,
-                  //   alignment: Alignment.center,
-                  //   child: QuestionsSwipeCards(
-                  //     currentIndex: currentIndex,
-                  //     questionsListTest: questionsListTest,
-                  //     swipeKey: _swipeKey,
-                  //     answersCallBack: answersCallBack,
-                  //   ),
-                  // ),
-                  Center(
-                    child: indexStacked(),
-                  ),
-                  // //answers widget
+        scrollDirection: Axis.vertical,
+        child: Container(
+            height: MediaQuery.of(context).size.height,
+            width: MediaQuery.of(context).size.width,
+            decoration: BoxDecoration(
+                gradient: LinearGradient(
+                    colors: [Colors.deepPurpleAccent, Colors.tealAccent],
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                    stops: [0.0, 1.0],
+                    tileMode: TileMode.clamp)),
+            child: Stack(
+              alignment: Alignment.bottomCenter,
+              children: <Widget>[
+                Center(
+                  child: indexStacked(),
+                ),
+                // //answers widget
 
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.end,
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      for (var item in listAnswers)
-                        Container(
-                          padding: const EdgeInsets.only(bottom: 150.0),
-                          alignment: Alignment.bottomCenter,
-                          child: AnswersButtons(
-                              swipeKey: _swipeKey,
-                              answersList: answersList,
-                              answersCallBack: answersCallBack,
-                              item: item,
-                              currentIndex: currentIndex),
-                        ),
-                    ],
-                  ),
+                LayoutBuilder(
+                  builder: (context, constraints) {
+                    if (constraints.maxHeight < 768 &&
+                        constraints.maxWidth < 420) {
+                      print(constraints.maxWidth);
+                      return _answersButtonColumn();
+                    } else {
+                      return _answersButtonRow();
+                    }
+                  },
+                ),
 
-                  // return button
-                  Container(
-                    alignment: Alignment.topRight,
-                    padding: const EdgeInsets.all(20.0),
-                    child: RaisedButton(
-                      shape: new RoundedRectangleBorder(
-                        borderRadius: new BorderRadius.circular(30.0),
-                      ),
-                      textColor: Colors.black,
-                      color: Colors.blue,
-                      onPressed: () => {
-                        if (currentIndex == 0)
-                          {print('object')}
-                        else
-                          {
-                            // _swipeKey.currentState.rewind(),
-                            returnButtonFunction(),
-                          }
-                      },
-                      child: Text("return", style: TextStyle(fontSize: 20)),
-                    ),
-                  )
-                ],
-              )),
-        ),
+                // return button
+                Container(
+                  alignment: Alignment.topRight,
+                  padding: const EdgeInsets.all(20.0),
+                  child: RaisedButton(
+                    shape: buttonStyle,
+                    textColor: Colors.black,
+                    color: Colors.blue,
+                    onPressed: () => {
+                      if (currentIndex == 0)
+                        {print('object')}
+                      else
+                        {
+                          returnButtonFunction(),
+                        }
+                    },
+                    child: Text("return", style: TextStyle(fontSize: 20)),
+                  ),
+                )
+              ],
+            )),
+      ),
+    );
+  }
+
+  _answersButtonRow() {
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.end,
+      children: [
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.end,
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            for (var item in listAnswers)
+              Container(
+                padding: const EdgeInsets.only(bottom: 150.0),
+                alignment: Alignment.bottomCenter,
+                child: AnswersButtons(
+                    answersList: answersList,
+                    answersCallBack: answersCallBack,
+                    item: item,
+                    currentIndex: currentIndex),
+              )
+          ],
+        )
+      ],
+    );
+  }
+
+  _answersButtonColumn() {
+    return Container(
+      height: 300,
+      padding: const EdgeInsets.only(top: 50.0),
+      alignment: Alignment.bottomCenter,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        mainAxisAlignment: MainAxisAlignment.end,
+        children: [
+          for (var item in listAnswers)
+            Wrap(children: [
+              SizedBox(
+                height: 20,
+              ),
+              AnswersButtons(
+                  answersList: answersList,
+                  answersCallBack: answersCallBack,
+                  item: item,
+                  currentIndex: currentIndex),
+            ])
+        ],
       ),
     );
   }

@@ -29,7 +29,6 @@ dependencies:
   localstorage: ^3.0.0
   uuid: ^2.2.0
   cooky: ^1.0.2
-  swipe_stack: ^1.0.0
   js_shims: ^1.0.0
  
 

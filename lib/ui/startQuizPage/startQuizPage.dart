@@ -5,6 +5,8 @@ import 'package:ibdaa_testing/ui/quizPage/quizPage.dart';
 import 'package:uuid/uuid.dart';
 import 'package:cooky/cooky.dart' as cookie;
 
+import '../style.dart';
+
 class StartQuizPage extends StatefulWidget {
   @override
   _StartQuizPageState createState() => _StartQuizPageState();
@@ -93,9 +95,7 @@ class _StartQuizPageState extends State<StartQuizPage> {
       backgroundColor: Theme.of(context).backgroundColor,
       body: Center(
         child: RaisedButton(
-            shape: new RoundedRectangleBorder(
-              borderRadius: new BorderRadius.circular(30.0),
-            ),
+            shape: buttonStyle,
             textColor: Colors.white,
             color: Colors.blue,
             child: Text('Start Quiz'),

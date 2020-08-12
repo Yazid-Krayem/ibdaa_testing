@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:localstorage/localstorage.dart';
 
+import '../style.dart';
+
 // ignore: must_be_immutable
 class SubmitPage extends StatelessWidget {
   final LocalStorage storage = new LocalStorage('ibdaa');
@@ -12,15 +14,13 @@ class SubmitPage extends StatelessWidget {
     //  ITEMS holds the answer's of the user
 
     return Scaffold(
-        appBar: AppBar(
-          automaticallyImplyLeading: false,
-          title: Text('Submit'),
-        ),
         body: Column(
+      children: [
+        Row(
           children: [
-            // for (var item in items) Center(child: questionsList(item)),
             new Container(
               child: RaisedButton(
+                shape: buttonStyle,
                 onPressed: () {
                   storage.clear();
                   progressStorage.clear();
@@ -28,7 +28,19 @@ class SubmitPage extends StatelessWidget {
                 child: Text('Submit'),
               ),
             ),
+            new Container(
+              child: RaisedButton(
+                shape: buttonStyle,
+                onPressed: () {
+                  storage.clear();
+                  progressStorage.clear();
+                },
+                child: Text('Share'),
+              ),
+            ),
           ],
-        ));
+        )
+      ],
+    ));
   }
 }
