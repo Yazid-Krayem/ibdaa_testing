@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
+import 'package:ibdaa_testing/main.dart';
 import 'package:localstorage/localstorage.dart';
 
 import '../style.dart';
@@ -110,6 +111,43 @@ class _SubmitPageState extends State<SubmitPage> {
     super.initState();
   }
 
+//Alert
+  void _showDialog() {
+    // flutter defined function
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        // return object of type Dialog
+        return AlertDialog(
+          title: new Text("Mabrouk "),
+          content: new Text("Your result is $result"),
+          actions: <Widget>[
+            // usually buttons at the bottom of the dialog
+            new FlatButton(
+              child: new Text("Sahre it "),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+            FlatButton(
+              child: new Text("Start over "),
+              onPressed: () {
+                storage.clear();
+                progressStorage.clear();
+                Navigator.pushAndRemoveUntil(
+                    context,
+                    MaterialPageRoute(builder: (context) => MyApp()),
+                    (Route<dynamic> route) => false);
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  //speedDial Buttons
+
   void setDialVisible(bool value) {
     setState(() {
       dialVisible = value;
@@ -183,7 +221,7 @@ class _SubmitPageState extends State<SubmitPage> {
         SpeedDialChild(
           child: Icon(Icons.save, color: Colors.white),
           backgroundColor: Colors.deepOrange,
-          onTap: () => print(result),
+          onTap: () => _showDialog(),
           label: 'Submit',
           labelStyle: TextStyle(fontWeight: FontWeight.w500),
           labelBackgroundColor: Colors.deepOrangeAccent,
